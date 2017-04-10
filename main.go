@@ -18,7 +18,7 @@ type Info struct {
 func main() {
 	msg := "获取电脑外网IP:" + get_external() + "内网IP:" + get_internal() + "\n" + "主机名：" + getHostname()
 	fmt.Println(msg)
-	sendWXQY(msg)
+	sendWXQY("dcy", msg)
 }
 
 //获取电脑外网IP
@@ -66,7 +66,7 @@ func getHostname() string {
 }
 
 //发送信息给微信用户
-func sendWXQY(content string) {
+func sendWXQY(wxid string, content string) {
 	resp1, _ := http.Get("https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=wxfe9025ee4d2c1ca2&corpsecret=9CkdgSgjatw04xEf_yz_CIZl41IvoBJFCioLshBRbj_Dks6Z12W34gby44YPTxMw")
 	defer resp1.Body.Close()
 	body1, _ := ioutil.ReadAll(resp1.Body)
@@ -76,7 +76,7 @@ func sendWXQY(content string) {
 	Access_token := myInfo.Access_token
 	fmt.Println(Access_token)
 
-	tmp := `{"touser": "dcy","msgtype": "text","agentid": 0,"text": {"content": "` + content + `"},"safe":0}`
+	tmp := `{"touser": "` + wxid + `","msgtype": "text","agentid": 0,"text": {"content": "` + content + `"},"safe":0}`
 	req := bytes.NewBuffer([]byte(tmp))
 
 	body_type := "application/json;charset=utf-8"
