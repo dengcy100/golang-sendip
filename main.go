@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net"
 	"net/http"
+	"os"
 )
 
 type Info struct {
@@ -14,18 +16,58 @@ type Info struct {
 }
 
 func main() {
+	msg := "获取电脑外网IP:" + get_external() + "内网IP:" + get_internal() + "\n" + "主机名：" + getHostname()
+	fmt.Println(msg)
+	sendWXQY(msg)
+}
 
+//获取电脑外网IP
+func get_external() string {
 	response, _ := http.Get("http://myexternalip.com/raw")
 	defer response.Body.Close()
 	IP, _ := ioutil.ReadAll(response.Body)
-	fmt.Println(string(IP))
-	sendWXQY("获取电脑IP:" + string(IP))
-
+	//fmt.Println(string(IP))
+	return string(IP)
 }
 
-func sendWXQY(content string) {
-	resp1, _ := http.Get("https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=wxfe9025ee4d2c1ca2&corpsecret=_AX6ICTZegQADd9JaQWp3xXhTGw4cDBZYF-7Q7yAt574jD3rgWHft24oK3hG1p_U")
+//获取电脑内网IP
+func get_internal() string {
+	ips := ""
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		os.Stderr.WriteString("Oops:" + err.Error())
+		//os.Exit(1)
+	}
+	for _, a := range addrs {
+		if ipnet, ok := a.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				//os.Stdout.WriteString(ipnet.IP.String() + "\n")
+				if ips == "" {
+					ips = ipnet.IP.String()
+				} else {
+					ips = ips + "/" + ipnet.IP.String()
+				}
+			}
+		}
+	}
+	//os.Exit(0)
+	return ips
+}
 
+//获取电脑主机名
+func getHostname() string {
+	host, err := os.Hostname()
+	if err != nil {
+		fmt.Printf("%s", err)
+		return ""
+	} else {
+		return host
+	}
+}
+
+//发送信息给微信用户
+func sendWXQY(content string) {
+	resp1, _ := http.Get("https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=wxfe9025ee4d2c1ca2&corpsecret=9CkdgSgjatw04xEf_yz_CIZl41IvoBJFCioLshBRbj_Dks6Z12W34gby44YPTxMw")
 	defer resp1.Body.Close()
 	body1, _ := ioutil.ReadAll(resp1.Body)
 	JsonStr := string(body1)
