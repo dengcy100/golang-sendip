@@ -67,7 +67,7 @@ func getHostname() string {
 
 //发送信息给微信用户
 func sendWXQY(wxid string, content string) {
-	resp1, _ := http.Get("https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=wxfe9025ee4d2c1ca2&corpsecret=9CkdgSgjatw04xEf_yz_CIZl41IvoBJFCioLshBRbj_Dks6Z12W34gby44YPTxMw")
+	resp1, _ := http.Get("https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=xxx&corpsecret=xxx")
 	defer resp1.Body.Close()
 	body1, _ := ioutil.ReadAll(resp1.Body)
 	JsonStr := string(body1)
